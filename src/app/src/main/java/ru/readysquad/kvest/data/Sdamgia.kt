@@ -231,6 +231,14 @@ object Sdamgia {
             if (it.startsWith("http")) it else "https://$domain.sdamgia.ru$it"
         }
 
+        // Отсеиваем задания, которые нельзя показать целиком: потерянная формула,
+        // таблица или рисунок заставили бы ученика угадывать ответ.
+        val lower = condition.lowercase()
+        if (lower.contains("<math") || lower.contains("<table")) return null
+        if (imageUrl != null && imageUrl.lowercase().contains(".svg")) return null
+        val needsFigure = Regex("рисун|изображ|клетчатой|график").containsMatchIn(lower)
+        if (needsFigure && imageUrl == null) return null
+
         return RealTask(
             id = id.toLongOrNull() ?: 0L,
             subjectCode = "",

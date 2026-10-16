@@ -250,7 +250,7 @@ class SchoolAdminActivity : AppCompatActivity() {
                 addView(ui.text(teacher.address(prefs.addressByName), 14.5f, R.color.on_bg, bold = true, top = 14))
                 addView(ui.text(teacher.positionLine, 12f, R.color.on_bg_variant))
                 addView(
-                    ui.row(R.drawable.ic_settings, "Изменить", "должности и статус заявки") {
+                    ui.row(R.drawable.ic_settings, "Изменить", "должности и роль") {
                         personId = teacher.id
                         rebuild()
                     }
@@ -384,20 +384,6 @@ class SchoolAdminActivity : AppCompatActivity() {
             )
         }
 
-        ui.card("Статус заявки") {
-            addView(ui.text("Сейчас: " + person.status, 13f, R.color.on_bg))
-            addView(
-                ui.button("Подтвердить", primary = false) {
-                    store.changeStatus(person.id, "approved")
-                    rebuild()
-                }
-            )
-            addView(
-                ui.button("Отклонить", primary = false) {
-                    store.changeStatus(person.id, "rejected")
-                    rebuild()
-                }
-            )
-        }
+
     }
 }

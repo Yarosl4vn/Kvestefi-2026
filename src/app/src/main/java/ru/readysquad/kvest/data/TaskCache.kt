@@ -37,6 +37,8 @@ class TaskCache(context: Context) {
                     put("opt4", task.options.getOrNull(3))
                     put("correct_index", task.correctIndex)
                     put("explanation", task.explanation)
+                    put("image_url", task.imageUrl)
+                    put("source", task.source)
                     put("fetched_at", now)
                 }, android.database.sqlite.SQLiteDatabase.CONFLICT_IGNORE)
             }
@@ -68,7 +70,7 @@ class TaskCache(context: Context) {
     private fun read(subjectCode: String, exam: String, limit: Int, newerThan: Long): List<Task>? {
         val sql = StringBuilder(
             "SELECT subject_code, topic, exam, difficulty, question, opt1, opt2, opt3, opt4, " +
-                "correct_index, explanation FROM task_cache " +
+                "correct_index, explanation, image_url, source FROM task_cache " +
                 "WHERE subject_code = ? AND exam = ?"
         )
         val args = ArrayList<String>()
@@ -98,7 +100,9 @@ class TaskCache(context: Context) {
                             question = c.getString(4),
                             options = order.map { raw[it] },
                             correctIndex = order.indexOf(c.getInt(9)).coerceAtLeast(0),
-                            explanation = c.getString(10) ?: ""
+                            explanation = c.getString(10) ?: "",
+                            imageUrl = c.getString(11),
+                            source = c.getString(12) ?: ""
                         )
                     )
                 }

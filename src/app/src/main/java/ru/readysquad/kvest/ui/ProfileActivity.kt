@@ -468,7 +468,6 @@ class ProfileActivity : AppCompatActivity() {
             val users = store.all(500)
             addView(ui.kv("Аккаунтов", users.size.toString(), 10))
             addView(ui.kv("Школ", store.knownSchools().size.toString()))
-            addView(ui.kv("Ждут подтверждения", store.pendingApprovals().size.toString()))
             addView(ui.kv("Версия базы", DbHelper.VERSION.toString()))
             addView(ui.kv("Режим", if (me?.isDeveloper == true) "аккаунт разработчика" else "сессия разработчика"))
             addView(

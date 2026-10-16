@@ -82,7 +82,7 @@ class PeopleActivity : AppCompatActivity() {
         mode == MODE_SCHOOLS -> "Справочник школ"
         mode == MODE_DEVICES -> "Устройства"
         mode == MODE_DEVELOPERS -> "Разработки проекта"
-        else -> "Заявки"
+        else -> "Учителя"
     }
 
     private fun rebuild() {
@@ -99,7 +99,7 @@ class PeopleActivity : AppCompatActivity() {
             mode == MODE_SCHOOLS -> renderSchools()
             mode == MODE_DEVICES -> renderDevices()
             mode == MODE_DEVELOPERS -> renderPeople(Roles.DEVELOPER)
-            else -> renderApprovals()
+            else -> renderPeople(Roles.TEACHER)
         }
     }
 
@@ -330,17 +330,6 @@ class PeopleActivity : AppCompatActivity() {
             }
         }
 
-        ui.card("Статус заявки") {
-            addView(ui.text("Текущий статус: " + statusWord(person.status), 13f, R.color.on_bg))
-            addView(ui.button("Подтвердить", primary = false) {
-                store.changeStatus(person.id, "approved")
-                rebuild()
-            })
-            addView(ui.button("Отклонить", primary = false) {
-                store.changeStatus(person.id, "rejected")
-                rebuild()
-            })
-        }
 
         if (prefs.role == Roles.DEVELOPER || prefs.devMode) {
             ui.card("Служебное: префикс и роль") {
@@ -499,7 +488,7 @@ class PeopleActivity : AppCompatActivity() {
             })
         }
 
-        ui.card("Заявки на школы") {
+        ui.card("Предложенные школы") {
             val requests = schools.requests()
             if (requests.isEmpty()) {
                 addView(ui.text("Новых заявок нет.", 13f, R.color.on_bg_variant))
@@ -507,12 +496,8 @@ class PeopleActivity : AppCompatActivity() {
                 requests.forEach { (name, city, by) ->
                     addView(ui.text(name, 13.5f, R.color.on_bg, bold = true, top = 12))
                     addView(ui.text("город: $city · просил: $by", 12f, R.color.on_bg_variant))
-                    addView(ui.button("Добавить «$name»") {
+                    addView(ui.button("Добавить в справочник") {
                         schools.decideRequest(name, true)
-                        rebuild()
-                    })
-                    addView(ui.button("Отклонить", primary = false) {
-                        schools.decideRequest(name, false)
                         rebuild()
                     })
                 }
@@ -580,37 +565,4 @@ class PeopleActivity : AppCompatActivity() {
         java.text.SimpleDateFormat("dd.MM.yyyy HH:mm", java.util.Locale.getDefault())
             .format(java.util.Date(at))
 
-    private fun renderApprovals() {
-        val pending = store.pendingApprovals()
-        ui.card("Заявки") {
-            if (pending.isEmpty()) {
-                addView(ui.text("Заявок нет.", 13f, R.color.on_bg_variant))
-            } else {
-                addView(ui.text("Всего: ${pending.size}", 12f, R.color.on_bg_variant))
-                pending.forEach { (approval, user) ->
-                    addView(
-                        ui.text(
-                            user.fullName + " · " + Roles.title(user.role),
-                            13.5f, R.color.on_bg, bold = true, top = 14
-                        )
-                    )
-                    addView(ui.text(user.school.ifBlank { "школа не указана" }, 12f, R.color.on_bg_variant))
-                    addView(
-                        ui.text(
-                            "должность: " + user.positionLine + " · кому: " + approval.addressee,
-                            12f, R.color.on_bg_variant
-                        )
-                    )
-                    addView(ui.button("Подтвердить") {
-                        store.decide(approval.id, true, "разработчик")
-                        rebuild()
-                    })
-                    addView(ui.button("Отклонить", primary = false) {
-                        store.decide(approval.id, false, "разработчик")
-                        rebuild()
-                    })
-                }
-            }
-        }
-    }
 }

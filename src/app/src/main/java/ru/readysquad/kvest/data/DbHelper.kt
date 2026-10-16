@@ -109,6 +109,13 @@ class DbHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             topUpContent(db)
             v = 20
         }
+        if (v < 24) {
+
+            // Раньше кэш заданий не хранил картинку и ссылку на источник: такие задания
+            // приходили без рисунка. Старые записи бесполезны — очищаем кэш.
+            runCatching { db.execSQL("DELETE FROM task_cache") }
+            v = 24
+        }
         if (v < 23) {
 
             // ВПР больше не используется: старые задания и шпаргалки помечаем как ОГЭ.
@@ -154,7 +161,7 @@ class DbHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                     "topic TEXT, difficulty INTEGER NOT NULL DEFAULT 2, question TEXT NOT NULL, " +
                     "opt1 TEXT, opt2 TEXT, opt3 TEXT, opt4 TEXT, " +
                     "correct_index INTEGER NOT NULL DEFAULT 0, explanation TEXT, " +
-                    "fetched_at INTEGER NOT NULL)"
+                    "image_url TEXT, source TEXT, fetched_at INTEGER NOT NULL)"
             )
         }
         runCatching {
@@ -445,7 +452,7 @@ class DbHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
     companion object {
         const val NAME = "kvest_marathon.db"
 
-        const val VERSION = 23
+        const val VERSION = 24
 
         private const val MESSAGES_DDL =
             "CREATE TABLE IF NOT EXISTS messages (" +
