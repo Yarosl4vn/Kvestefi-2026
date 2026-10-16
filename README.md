@@ -40,7 +40,7 @@
 | Язык | Kotlin |
 | Интерфейс | Material 3, программная вёрстка, ViewBinding |
 | Платформа | Android SDK 34, поддержка с Android 7.0 (minSdk 24) |
-| Хранилище | SQLite (схема версии 23), SharedPreferences |
+| Хранилище | SQLite (схема версии 24), SharedPreferences |
 | Сеть | HTTP, разбор HTML открытого банка заданий |
 | Сборка | Gradle 8.2, JDK 17 |
 | Внешний источник | Открытый банк заданий ОГЭ и ЕГЭ |
