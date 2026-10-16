@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Манифест ТОЛЬКО отладочной сборки.
+
+  Внутренние экраны приложения помечены exported="false" — это правильная защита:
+  посторонняя программа не может открыть их снаружи. Но для автоматического
+  прогона по всем экранам их нужно открывать командой, а значит в отладочной
+  сборке защиту приходится снимать.
+
+  Здесь она снимается только для debug-варианта. Release-сборка, которую
+  устанавливают пользователи, остаётся защищённой: этот файл в неё не попадает.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <activity
+            android:name=".ui.AuthActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.OnboardingActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.QuizActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.RealTasksActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.ResultActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.ProfileActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.NotificationsActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.MessagesActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.SupportActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.AssignActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.SchoolAdminActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <activity
+            android:name=".ui.PeopleActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+    </application>
+</manifest>

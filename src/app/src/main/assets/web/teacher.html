@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Квестефи — кабинет учителя</title>
+<style>
+  :root { --bg:#0f1513; --card:#1b2320; --line:#2c3632; --text:#e8efec; --dim:#9db0a9;
+          --accent:#4fd1a5; --danger:#ff6b6b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+         font:16px/1.45 -apple-system, system-ui, Segoe UI, Roboto, sans-serif; }
+  .wrap { max-width:680px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font-size:23px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:14px; margin-bottom:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px;
+          padding:16px; margin-bottom:12px; }
+  .label { color:var(--dim); font-size:13px; margin:10px 0 6px; }
+  select, input { width:100%; padding:14px; border-radius:12px; border:1px solid var(--line);
+          background:#121917; color:var(--text); font-size:16px; }
+  button { width:100%; padding:15px; border:0; border-radius:14px; font-size:16px;
+           font-weight:600; background:var(--accent); color:#06231b; margin-top:12px; }
+  button.mini { width:auto; padding:10px 14px; font-size:14px; margin:0; }
+  button.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .big { font-size:19px; font-weight:700; }
+  .meta { color:var(--dim); font-size:13px; }
+  .ok { color:var(--accent); } .bad { color:var(--danger); }
+  .mistake { border-top:1px solid var(--line); padding-top:10px; margin-top:10px; }
+  .q { white-space:pre-wrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Квестефи</h1>
+  <div class="sub" id="who">Кабинет учителя</div>
+
+  <div class="card">
+    <div class="big">Выдать задание</div>
+    <div class="label">Предмет</div>
+    <select id="subject" onchange="loadTopics()"></select>
+    <div class="label">Что сдают</div>
+    <select id="exam" onchange="loadTopics()">
+      <option>ОГЭ</option><option>ЕГЭ</option><option>ВПР</option>
+    </select>
+    <div class="label">Тема</div>
+    <select id="topic"></select>
+    <div class="label">Сколько задач</div>
+    <select id="count">
+      <option>5</option><option>10</option><option>15</option>
+    </select>
+    <button onclick="issue()">Выдать классу</button>
+  </div>
+
+  <div class="big" style="margin:18px 0 8px">Мои задания</div>
+  <div id="list"></div>
+</div>
+
+<script>
+function el(id) { return document.getElementById(id); }
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function json(path) {
+  return fetch(path).then(function (r) { return r.json(); });
+}
+
+json("/ping").then(function (p) {
+  el("who").textContent = "Кабинет учителя · " + (p.teacher || "") + (p.school ? " · " + p.school : "");
+});
+
+json("/teacher/subjects").then(function (list) {
+  var html = "";
+  for (var i = 0; i < list.length; i++) {
+    html += '<option value="' + esc(list[i].code) + '">' + esc(list[i].title) + '</option>';
+  }
+  el("subject").innerHTML = html;
+  loadTopics();
+});
+
+function loadTopics() {
+  var s = el("subject").value, e = el("exam").value;
+  if (!s) return;
+  json("/teacher/topics?subject=" + encodeURIComponent(s) + "&exam=" + encodeURIComponent(e))
+    .then(function (topics) {
+      var html = "";
+      for (var i = 0; i < topics.length; i++) { html += '<option>' + esc(topics[i]) + '</option>'; }
+      el("topic").innerHTML = html;
+    });
+}
+
+function issue() {
+  var body = { subject: el("subject").value, exam: el("exam").value,
+               topic: el("topic").value, count: parseInt(el("count").value, 10) };
+  fetch("/teacher/assign", { method: "POST", headers: { "Content-Type": "application/json" },
+                             body: JSON.stringify(body) })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (res.ok) { alert("Задание выдано: задач " + res.tasks + ". Ученики увидят его сразу."); loadAssignments(); }
+      else { alert(res.error || "Не получилось выдать задание"); }
+    })
+    .catch(function () { alert("Сервер не ответил"); });
+}
+
+function loadAssignments() {
+  json("/teacher/assignments").then(function (list) {
+    if (!list.length) {
+      el("list").innerHTML = '<div class="card">Пока ничего не выдано.</div>';
+      return;
+    }
+    var html = "";
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      html += '<div class="card"><div class="row"><div><div class="big">' + esc(a.topic) + '</div>' +
+              '<div class="meta">' + esc(a.exam) + ' · задач ' + a.size + ' · прошли ' + a.passed + '</div>' +
+              '</div><button class="mini ghost" onclick="report(' + a.id + ')">Отчёт</button></div>' +
+              '<div id="rep' + a.id + '"></div></div>';
+    }
+    el("list").innerHTML = html;
+  });
+}
+
+function report(id) {
+  json("/teacher/report?id=" + id).then(function (data) {
+    var html = "";
+    if (!data.results.length) {
+      html = '<div class="mistake">Пока никто не прошёл. Напомни классу про задание.</div>';
+    }
+    for (var i = 0; i < data.results.length; i++) {
+      var r = data.results[i];
+      var cls = r.grade >= 4 ? "ok" : "bad";
+      html += '<div class="mistake"><div class="row"><div><b>' + esc(r.student) + '</b>' +
+              '<div class="meta">верных ' + r.correct + ' из ' + r.total + ' · очков ' + r.score + '</div></div>' +
+              '<div class="big ' + cls + '">' + r.grade + '</div></div>';
+      if (r.mistakes && r.mistakes.length) {
+        for (var k = 0; k < r.mistakes.length; k++) {
+          var m = r.mistakes[k];
+          html += '<div class="meta" style="margin-top:8px">Ошибка: ' + esc(m.topic) + '</div>' +
+                  '<div class="q">' + esc(m.question) + '</div>' +
+                  '<div class="meta">Ответил: <span class="bad">' + esc(m.typed || "нет ответа") +
+                  '</span> · верно: <span class="ok">' + esc(m.expected) + '</span></div>';
+        }
+      } else {
+        html += '<div class="meta ok">Ошибок нет</div>';
+      }
+      html += '</div>';
+    }
+    if (data.waiting && data.waiting.length) {
+      html += '<div class="mistake meta">Ещё не прошли: ' + esc(data.waiting.join(", ")) + '</div>';
+    }
+    el("rep" + id).innerHTML = html;
+  });
+}
+
+loadAssignments();
+</script>
+</body>
+</html>

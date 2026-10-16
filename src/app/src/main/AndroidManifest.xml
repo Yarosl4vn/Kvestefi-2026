@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <package android:name="com.vkontakte.android" />
+        <package android:name="org.telegram.messenger" />
+        <package android:name="org.thgo.challegram" />
+        <package android:name="org.telegram.plus" />
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="text/plain" />
+        </intent>
+    </queries>
+
+    <application
+        android:usesCleartextTraffic="true"
+        android:name=".KvestApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:hardwareAccelerated="true"
+        android:theme="@style/Theme.Kvest">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/ThemeKvestLaunch"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.QuizActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.AuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.RealTasksActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.SchoolAdminActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.AssignActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest" />
+
+        <activity
+            android:name=".ui.SupportActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.PeopleActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.NotificationsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.MessagesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.AppSettingsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest"
+            android:windowSoftInputMode="adjustResize" />
+
+        <receiver
+            android:name=".widget.KvestWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/kvest_widget_info" />
+        </receiver>
+
+
+
+        <activity
+            android:name=".ui.ResultActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Kvest" />
+    </application>
+
+</manifest>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Квестефи — задания класса</title>
+<style>
+  :root { --bg:#0f1513; --card:#1b2320; --line:#2c3632; --text:#e8efec; --dim:#9db0a9;
+      --accent:#4fd1a5; --danger:#ff6b6b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text);
+     font:16px/1.45 -apple-system, system-ui, Segoe UI, Roboto, sans-serif; }
+  .wrap { max-width:640px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font-size:24px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:14px; margin-bottom:18px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px;
+      padding:16px; margin-bottom:12px; }
+  .label { color:var(--dim); font-size:13px; margin-bottom:6px; }
+  input, select { width:100%; padding:14px; border-radius:12px; border:1px solid var(--line);
+      background:#121917; color:var(--text); font-size:16px; }
+  button { width:100%; padding:15px; border:0; border-radius:14px; font-size:16px;
+       font-weight:600; background:var(--accent); color:#06231b; margin-top:10px; }
+  button.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  .task { border-top:1px solid var(--line); padding-top:14px; margin-top:14px; }
+  .q { font-weight:600; margin-bottom:10px; white-space:pre-wrap; }
+  .opt { display:block; padding:12px; border:1px solid var(--line); border-radius:12px;
+     margin-bottom:8px; cursor:pointer; }
+  .opt.on { border-color:var(--accent); background:#16241f; }
+  .ok { color:var(--accent); } .bad { color:var(--danger); }
+  .meta { color:var(--dim); font-size:13px; }
+  .big { font-size:22px; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Квестефи</h1>
+  <div class="sub" id="hello">Задания класса · подключение по классу учителя</div>
+
+  <div class="card" id="form">
+<div class="label">Как тебя зовут</div>
+<input id="name" placeholder="Фамилия и имя">
+<div class="label" style="margin-top:12px">Класс</div>
+<select id="grade">
+  <option>5</option><option>6</option><option>7</option><option>8</option>
+  <option selected>9</option><option>10</option><option>11</option>
+</select>
+<div class="label" style="margin-top:12px">Буква</div>
+<select id="letter">
+  <option>А</option><option>Б</option><option>В</option><option>Г</option><option>Д</option>
+</select>
+<button onclick="load()">Показать задания</button>
+  </div>
+
+  <div id="list"></div>
+  <div id="solve"></div>
+  <div id="result"></div>
+</div>
+
+<script>
+var state = { student:"", grade:"9", letter:"А", items:[], current:null, answers:[] };
+
+function el(id) { return document.getElementById(id); }
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function load() {
+  state.student = el("name").value.trim();
+  state.grade = el("grade").value;
+  state.letter = el("letter").value;
+  if (state.student.length < 3) { alert("Напиши фамилию и имя"); return; }
+  el("form").style.display = "none";
+  el("hello").textContent = state.student + " · " + state.grade + state.letter;
+  fetch("/assignments?grade=" + encodeURIComponent(state.grade) + "&letter=" + encodeURIComponent(state.letter))
+.then(function (r) { return r.json(); })
+.then(function (data) {
+  state.items = data;
+  if (!data.length) {
+    el("list").innerHTML = '<div class="card">Заданий пока нет. Подожди, пока учитель их выдаст, и обнови страницу.</div>';
+    return;
+  }
+  var html = "";
+  for (var i = 0; i < data.length; i++) {
+    var a = data[i];
+    html += '<div class="card"><div class="meta">' + esc(a.exam) + ' · ' + esc(a.topic) + '</div>' +
+            '<div class="big">' + a.tasks.length + ' задач</div>' +
+            '<div class="meta">Выдал ' + esc(a.teacher) + '</div>' +
+            '<button onclick="start(' + i + ')">Решить</button></div>';
+  }
+  el("list").innerHTML = html;
+})
+.catch(function () { el("list").innerHTML = '<div class="card">Не получилось получить задания. Обнови страницу.</div>'; });
+}
+
+function start(index) {
+  state.current = state.items[index];
+  state.answers = [];
+  el("list").innerHTML = "";
+  render();
+}
+
+function render() {
+  var a = state.current;
+  var html = '<div class="card"><div class="meta">' + esc(a.exam) + ' · ' + esc(a.topic) + '</div>';
+  for (var t = 0; t < a.tasks.length; t++) {
+var task = a.tasks[t];
+html += '<div class="task"><div class="q">' + (t + 1) + '. ' + esc(task.question) + '</div>';
+for (var o = 0; o < task.options.length; o++) {
+  var cls = state.answers[t] === o ? "opt on" : "opt";
+  html += '<div class="' + cls + '" onclick="pick(' + t + ',' + o + ')">' +
+          "АБВГ"[o] + '. ' + esc(task.options[o]) + '</div>';
+}
+html += '</div>';
+  }
+  html += '<button onclick="send()">Отправить учителю</button>';
+  html += '<button class="ghost" onclick="load()">К другим заданиям</button></div>';
+  el("solve").innerHTML = html;
+}
+
+function pick(task, option) {
+  state.answers[task] = option;
+  render();
+}
+
+function send() {
+  var a = state.current;
+  var correct = 0, score = 0, details = [];
+  for (var t = 0; t < a.tasks.length; t++) {
+var task = a.tasks[t];
+var picked = state.answers[t];
+var isOk = picked === task.correct;
+if (isOk) { correct++; score += 10; }
+details.push((isOk ? "1" : "0") + "," + clean(task.topic) + "," + clean(task.question) + "," +
+             clean(picked == null ? "" : task.options[picked]) + "," + clean(task.options[task.correct]));
+  }
+  var grade = correct * 100 / a.tasks.length;
+  var mark = grade >= 90 ? 5 : grade >= 70 ? 4 : grade >= 40 ? 3 : 2;
+  var body = { assignment_id: a.id, student: state.student, correct: correct,
+           total: a.tasks.length, score: score, grade: mark, details: details.join("|") };
+  fetch("/result", { method: "POST", headers: { "Content-Type": "application/json" },
+                 body: JSON.stringify(body) })
+.then(function (r) { return r.json(); })
+.then(function (res) {
+  el("solve").innerHTML = "";
+  el("result").innerHTML = '<div class="card"><div class="big ' + (mark >= 4 ? "ok" : "bad") + '">' +
+    "Оценка " + mark + '</div><div>Верных ответов: ' + correct + ' из ' + a.tasks.length + '</div>' +
+    '<div class="meta">' + (res && res.ok ? "Отчёт отправлен учителю" : "Учитель не принял отчёт") + '</div>' +
+    '<button class="ghost" onclick="location.reload()">Готово</button></div>';
+})
+.catch(function () { alert("Не получилось отправить отчёт. Скажи учителю."); });
+}
+
+function clean(s) { return String(s == null ? "" : s).replace(/\|/g, " ").replace(/,/g, " "); }
+</script>
+</body>
+</html>
