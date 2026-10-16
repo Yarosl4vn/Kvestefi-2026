@@ -692,8 +692,8 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Выполнен выход со всех устройств", Toast.LENGTH_SHORT).show()
         }
         sectionAction(
-            box, "Сменить профиль",
-            "Откроется короткая настройка имени. Прогресс и данные останутся на месте."
+            box, "Аккаунт школы",
+            "Вход или регистрация учителя и ученика: класс, задания, рейтинг. Гостевой профиль можно оставить как есть."
         ) {
             saveToAccount()
             prefs.currentUserId = 0L

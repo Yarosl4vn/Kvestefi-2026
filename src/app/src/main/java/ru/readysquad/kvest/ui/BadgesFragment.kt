@@ -365,7 +365,7 @@ class BadgesFragment : Fragment(R.layout.fragment_badges), Refreshable {
     private fun confirmSignOut() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Сменить профиль")
-            .setMessage("Прогресс останется на устройстве. Профиль школы отвяжется, рейтинг класса будет недоступен.")
+            .setMessage("Прогресс останется на устройстве. Профиль школы отвяжется — вернуться можно через «Войти или зарегистрироваться».")
             .setPositiveButton("Выйти") { _, _ ->
                 prefs.currentUserId = 0L
                 prefs.role = Roles.GUEST
