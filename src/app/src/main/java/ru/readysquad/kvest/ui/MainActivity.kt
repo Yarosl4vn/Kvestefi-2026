@@ -27,9 +27,13 @@ class MainActivity : AppCompatActivity() {
 
         Palettes.apply(this, Prefs(this).palette)
 
+        // Первый запуск: без входа и регистрации — сразу короткая настройка профиля.
         if (!prefs.onboarded) {
 
-            startActivity(Intent(this, AuthActivity::class.java))
+            prefs.currentUserId = 0L
+            prefs.role = ru.readysquad.kvest.data.Roles.GUEST
+            prefs.devMode = false
+            startActivity(Intent(this, OnboardingActivity::class.java))
             finish()
             return
         }

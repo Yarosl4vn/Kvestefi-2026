@@ -34,6 +34,11 @@ class OnboardingActivity : AppCompatActivity() {
 
     private val goalLabels = Goals.options.map { it to Goals.label(it) }
 
+    /** Шаг 0 — приветствие — из потока убран, настройка начинается с имени. */
+    private val FIRST_STEP = 1
+    private val LAST_STEP = 3
+    private val STEPS_SHOWN = LAST_STEP - FIRST_STEP + 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,11 +62,13 @@ class OnboardingActivity : AppCompatActivity() {
         }
         b.nameInput.setText(OnboardingDraft.name)
         syncSelections()
-        showStep(OnboardingDraft.step.coerceIn(0, 3), animate = false)
+        // Шаг с приветствием пропускаем: сразу имя и аватар.
+        showStep(OnboardingDraft.step.coerceIn(FIRST_STEP, LAST_STEP), animate = false)
 
         b.btnNext.setOnClickListener { onNext() }
         b.btnBack.setOnClickListener {
-            if (OnboardingDraft.step > 0) showStep(OnboardingDraft.step - 1, animate = true) else Anim.shake(b.logoBubble)
+            if (OnboardingDraft.step > FIRST_STEP) showStep(OnboardingDraft.step - 1, animate = true)
+            else Anim.shake(b.logoBubble)
         }
         b.skip.setOnClickListener { finishOnboarding() }
 
@@ -286,7 +293,7 @@ class OnboardingActivity : AppCompatActivity() {
 
     private fun buildDots() {
         b.dots.removeAllViews()
-        repeat(4) {
+        repeat(STEPS_SHOWN) {
             val dot = View(this)
             val lp = LinearLayout.LayoutParams(dp(8), dp(8))
             lp.setMargins(dp(4), 0, dp(4), 0)
@@ -329,20 +336,21 @@ class OnboardingActivity : AppCompatActivity() {
         }
         for (i in 0 until b.dots.childCount) {
             val dot = b.dots.getChildAt(i)
+            val active = i + FIRST_STEP == OnboardingDraft.step
             dot.setBackgroundResource(
-                if (i == OnboardingDraft.step) R.drawable.bg_dot_active else R.drawable.bg_dot_inactive
+                if (active) R.drawable.bg_dot_active else R.drawable.bg_dot_inactive
             )
             val lp = dot.layoutParams as LinearLayout.LayoutParams
-            lp.width = if (i == OnboardingDraft.step) dp(26) else dp(8)
+            lp.width = if (active) dp(26) else dp(8)
             dot.layoutParams = lp
         }
         updateButton()
     }
 
     private fun updateButton() {
-        b.btnNext.text = if (OnboardingDraft.step == 3) "Поехали!" else "Дальше"
-        b.btnBack.alpha = if (OnboardingDraft.step == 0) 0.45f else 1f
-        if (OnboardingDraft.step == 3) updateSummary()
+        b.btnNext.text = if (OnboardingDraft.step == LAST_STEP) "Поехали!" else "Дальше"
+        b.btnBack.alpha = if (OnboardingDraft.step <= FIRST_STEP) 0.45f else 1f
+        if (OnboardingDraft.step == LAST_STEP) updateSummary()
     }
 
     private fun updateSummary() {
@@ -406,7 +414,7 @@ class OnboardingActivity : AppCompatActivity() {
                 }
             }
         }
-        if (OnboardingDraft.step < 3) showStep(OnboardingDraft.step + 1, animate = true) else finishOnboarding()
+        if (OnboardingDraft.step < LAST_STEP) showStep(OnboardingDraft.step + 1, animate = true) else finishOnboarding()
     }
 
     private fun finishOnboarding() {

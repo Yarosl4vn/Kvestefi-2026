@@ -58,7 +58,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Учимся к ОГЭ, ЕГЭ и ВПР играя"
+                        android:text="Учимся к ОГЭ и ЕГЭ играя"
                         android:textColor="?attr/colorOnPrimary" />
                 </LinearLayout>
             </LinearLayout>
@@ -87,7 +87,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Собираю квесты из настоящих заданий ОГЭ, ЕГЭ и ВПР. Решаешь — получаешь очки, держишь серию дней и видишь прогноз своей оценки. Настроим всё за минуту: имя, аватар, предметы и слабые темы."
+                        android:text="Собираю квесты из настоящих заданий ОГЭ и ЕГЭ. Решаешь — получаешь очки, держишь серию дней и видишь прогноз своей оценки. Настроим всё за минуту: имя, аватар, предметы и слабые темы."
                         android:textColor="@color/on_bg_variant" />
 
                     <LinearLayout

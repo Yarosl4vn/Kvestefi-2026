@@ -692,8 +692,8 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "Выполнен выход со всех устройств", Toast.LENGTH_SHORT).show()
         }
         sectionAction(
-            box, "Выйти из аккаунта",
-            "Откроется экран входа. Данные останутся на месте."
+            box, "Сменить профиль",
+            "Откроется короткая настройка имени. Прогресс и данные останутся на месте."
         ) {
             saveToAccount()
             prefs.currentUserId = 0L

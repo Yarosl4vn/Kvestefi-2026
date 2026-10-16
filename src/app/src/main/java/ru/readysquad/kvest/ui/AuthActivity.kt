@@ -132,32 +132,10 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun buildModeChips() {
+        // «Вход» и «Регистрация» убраны: приложение начинается с одного шага — имя.
+        mode = MODE_GUEST
         modeRow.removeAllViews()
-        listOf(
-            MODE_GUEST to "Гость",
-            MODE_LOGIN to "Вход",
-            MODE_REGISTER to "Регистрация"
-        ).forEach { (value, label) ->
-            val chip = TextView(this).apply {
-                text = label
-                textSize = 14f
-                gravity = Gravity.CENTER
-                setPadding(dp(16), dp(10), dp(16), dp(10))
-                background = ContextCompat.getDrawable(this@AuthActivity, R.drawable.bg_chip_choice)
-                setTextColor(ContextCompat.getColorStateList(this@AuthActivity, R.color.chip_text))
-                isSelected = mode == value
-                isClickable = true
-                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-                    .apply { marginEnd = dp(8) }
-                setOnClickListener {
-                    mode = value
-                    buildModeChips()
-                    render()
-                    Anim.pop(this, 0)
-                }
-            }
-            modeRow.addView(chip)
-        }
+        modeRow.visibility = View.GONE
     }
 
     private fun render() {
@@ -173,15 +151,18 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun renderGuest() {
-        form.addView(hint("Можно попробовать приложение без регистрации: квесты, шпаргалки и статистика работают полностью, но не попадут в рейтинг класса."))
-        form.addView(field("name", "Имя", "например Ярослав", top = 14))
+        form.addView(hint("Введи имя — оно будет видно в профиле и в статистике на этом устройстве. Пароль и регистрация не нужны."))
+        form.addView(field("name", "Имя или ник", "например Ярослав", top = 14))
         form.addView(
-            primaryButton("Продолжить как гость") {
+            primaryButton("Дальше") {
                 val name = fields["name"]?.text?.toString()?.trim().orEmpty()
                 prefs.currentUserId = 0L
                 prefs.role = Roles.GUEST
                 prefs.devMode = false
                 if (name.isNotBlank()) prefs.name = name
+                OnboardingDraft.name = name
+                // Имя уже спросили — сразу к выбору предметов.
+                OnboardingDraft.step = 2
                 startActivity(Intent(this, OnboardingActivity::class.java))
                 finish()
             }
